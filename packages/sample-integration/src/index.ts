@@ -1,5 +1,5 @@
 import type { AstroIntegration } from 'astro';
-import { tryAwaitImportRelative, tryAwaitImportRoot, tryAwaitImportUrlToPath, tryMetaGlob } from './load-config';
+import { tryAwaitImportFileUrl, tryAwaitImportRelative, tryAwaitImportRoot, tryAwaitImportUrlToPath, tryMetaGlob } from './load-config';
 
 export function sampleIntegration() {
 	return {
@@ -11,6 +11,7 @@ export function sampleIntegration() {
 				console.log('\n*** tryAwaitImportRoot:', await tryAwaitImportRoot());
 				console.log('\n*** tryAwaitImportRelative:', await tryAwaitImportRelative());
 				console.log('\n*** tryAwaitImportUrlToPath:', await tryAwaitImportUrlToPath(config.root));
+				console.log('\n*** tryAwaitImportFileUrl:', await tryAwaitImportFileUrl(config.root));
 				console.log('\n------\n');
 			},
 		},
