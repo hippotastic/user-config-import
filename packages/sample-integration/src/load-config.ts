@@ -26,13 +26,8 @@ export async function tryAwaitImportRelative() {
 }
 
 export async function tryAwaitImportUrlToPath(root: URL) {
-	const url = new URL('./user-config.mjs', root);
-	const path = fileURLToPath(url);
-	console.log('root.href:', root.href);
-	console.log('url.href:', url.href);
-	console.log('path:', path);
 	try {
-		return (await import(/* @vite-ignore */ path)).default;
+		return (await import(/* @vite-ignore */ fileURLToPath(new URL('./user-config.mjs', root)))).default;
 	} catch (e) {
 		return { error: e };
 	}
@@ -42,6 +37,22 @@ export async function tryAwaitImportFileUrl(root: URL) {
 	const url = new URL('./user-config.mjs', root);
 	try {
 		return (await import(/* @vite-ignore */ url.href)).default;
+	} catch (e) {
+		return { error: e };
+	}
+}
+
+export async function tryAwaitImportCombined(root: URL) {
+	const configFileName = 'user-config.mjs';
+	try {
+		// This is the only method that works on Windows when the Astro config is loaded natively
+		return (await import(/* @vite-ignore */ new URL(`./${configFileName}`, root).href)).default;
+	} catch (e) {
+		// Ignore and try the next method
+	}
+	try {
+		// This method works on Windows when the Astro config is loaded through Vite
+		return (await import(/* @vite-ignore */ `/${configFileName}`)).default;
 	} catch (e) {
 		return { error: e };
 	}
