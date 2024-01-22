@@ -5,7 +5,7 @@ import { execa } from 'execa';
 const sampleProjectNames = ['astro-native-config', 'astro-vite-config'];
 const packageManagers = ['npm', 'pnpm'];
 
-if (process.argv.includes('--clean')) cleanup();
+if (process.argv.includes('clean')) cleanup();
 await buildIntegration();
 await prepareTestScenarios();
 await runBuildTests();
@@ -51,11 +51,13 @@ async function prepareTestScenarios() {
 	console.log('  - Installing dependencies');
 	for (const projectName of sampleProjectNames) {
 		const projectDir = `./test-scenarios/npm/${projectName}`;
+		if (!shouldInstallDependencies(projectDir)) continue;
 		console.log(`    - ${projectDir}`);
 		await runCommand('npm', ['i'], projectDir);
 	}
 	for (const projectName of sampleProjectNames) {
 		const projectDir = `./test-scenarios/pnpm/${projectName}`;
+		if (!shouldInstallDependencies(projectDir)) continue;
 		console.log(`    - ${projectDir}`);
 		await runCommand('pnpm', ['i'], projectDir);
 	}
@@ -118,17 +120,45 @@ async function runBuildTests() {
 				functionResults = [];
 				testResultsByFunction[functionName] = functionResults;
 			}
-			// functionResult.split('\n')[1]
 			const functionResultChar = functionResult.includes('success:') ? '✅' : '❌';
-			functionResults.push(`${id.replace(/(astro-|-config)/g, '')}: ${functionResultChar}`);
+			const shortId = id.replace(/(astro-|-config)/g, '');
+			functionResults.push({
+				shortId,
+				tableColumn: `${shortId}: ${functionResultChar}`,
+				firstResultLine: functionResult.split('\n')[1],
+			});
 			return match;
 		});
 	}
 
-	console.log('\n- Test results');
 	for (const [functionName, functionResults] of Object.entries(testResultsByFunction)) {
-		console.log(`  - ${(functionName + ':').padEnd(30, ' ')} ${functionResults.join(', ')}`);
+		if (!functionName.startsWith('combined')) continue;
+		console.log(`\n- Detailed results of function "${functionName}"`);
+		console.log(
+			functionResults
+				.map((result) => {
+					const prefix = `  - ${(result.shortId + ':').padEnd(25, ' ')}`;
+					const shortMsg = result.firstResultLine
+						.replace(/^(\s*error: TypeError )/, '')
+						.replace(/Module "(.*?)"/, (_, path) => {
+							return `Module "[...]/${path.split('/').slice(-2).join('/')}"`;
+						})
+						.trim();
+					return `${prefix} ${shortMsg}`;
+				})
+				.join('\n')
+		);
 	}
+
+	console.log('\n- Status by function');
+	for (const [functionName, functionResults] of Object.entries(testResultsByFunction)) {
+		console.log(
+			`  - ${(functionName + ':').padEnd(25, ' ')} ${functionResults
+				.map((result) => result.tableColumn)
+				.join(', ')}`
+		);
+	}
+
 	console.log('\n');
 }
 
@@ -138,6 +168,11 @@ function removeDir(path) {
 	if (existsSync(path)) {
 		rmSync(path, { recursive: true });
 	}
+}
+
+function shouldInstallDependencies(path) {
+	if (process.argv.includes('clean') || process.argv.includes('deps')) return true;
+	return !existsSync(`${path}/node_modules/astro`);
 }
 
 function processPackageJson(packageJsonPath, processingFn) {

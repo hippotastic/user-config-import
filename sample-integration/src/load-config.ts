@@ -27,7 +27,8 @@ export async function tryAwaitImportRelative() {
 
 export async function tryAwaitImportUrlToPath(root: URL) {
 	try {
-		return (await import(/* @vite-ignore */ fileURLToPath(new URL('./user-config.mjs', root)))).default;
+		return (await import(/* @vite-ignore */ fileURLToPath(new URL('./user-config.mjs', root))))
+			.default;
 	} catch (e) {
 		return { error: e };
 	}
@@ -42,13 +43,14 @@ export async function tryAwaitImportFileUrl(root: URL) {
 	}
 }
 
-export async function tryAwaitImportCombined(root: URL) {
-	const configFileName = 'user-config.mjs';
+export async function tryAwaitImportCombined(root: URL, configFileName: string) {
 	try {
 		// This is the only method that works on Windows when the Astro config is loaded natively
 		return (await import(/* @vite-ignore */ new URL(`./${configFileName}`, root).href)).default;
 	} catch (e) {
-		// Ignore and try the next method
+		const code = (e as { code?: string | undefined }).code;
+		if (code && code !== 'ERR_MODULE_NOT_FOUND') return { error: e };
+		// If the module was not found, try the next method
 	}
 	try {
 		// This method works on Windows when the Astro config is loaded through Vite

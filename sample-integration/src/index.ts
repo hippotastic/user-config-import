@@ -12,7 +12,8 @@ export function sampleIntegration() {
 				console.log('\n*** tryAwaitImportRelative:', await tryAwaitImportRelative());
 				console.log('\n*** tryAwaitImportUrlToPath:', await tryAwaitImportUrlToPath(config.root));
 				console.log('\n*** tryAwaitImportFileUrl:', await tryAwaitImportFileUrl(config.root));
-				console.log('\n*** tryAwaitImportCombined:', await tryAwaitImportCombined(config.root));
+				console.log('\n*** combined, simple cfg:', await tryAwaitImportCombined(config.root, 'user-config.mjs'));
+				console.log('\n*** combined, complex cfg:', await tryAwaitImportCombined(config.root, 'user-config-2.mjs'));
 				console.log('\n------\n');
 			},
 		},
