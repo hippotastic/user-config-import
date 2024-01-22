@@ -11,6 +11,6 @@
   },
   "dependencies": {
     "astro": "^4.2.1",
-    "sample-integration": "workspace:^"
+    "sample-integration": "0.0.1"
   }
 }

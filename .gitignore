@@ -1,5 +1,12 @@
 # build output
 dist/
+dist-package/
+
+# packages copied into test scenarios
+scenarios/npm/*
+scenarios/pnpm/*
+scenarios/pnpm-workspace/packages/*
+
 # generated types
 .astro/
 

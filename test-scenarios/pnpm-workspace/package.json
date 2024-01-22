@@ -1,14 +1,16 @@
 {
-  "name": "root",
+  "name": "pnpm-workspace-root",
   "version": "0.0.0",
   "private": true,
   "license": "MIT",
-  "type": "module",
-  "scripts": {
-    "test": "node ./test-runner.js"
-  },
+  "workspaces": [
+    "packages/*"
+  ],
   "devDependencies": {
-    "execa": "^7.1.1"
+    "tsup": "^8.0.1",
+    "typescript": "^5.2.2",
+    "vite": "^4.2.1",
+    "vitest": "^0.34.3"
   },
   "engines": {
     "node": "^14.15.0 || >=16.0.0",
