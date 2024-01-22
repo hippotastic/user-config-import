@@ -3,9 +3,9 @@ dist/
 dist-package/
 
 # packages copied into test scenarios
-scenarios/npm/*
-scenarios/pnpm/*
-scenarios/pnpm-workspace/packages/*
+test-scenarios/npm/*
+test-scenarios/pnpm/*
+test-scenarios/pnpm-workspace/packages/*
 
 # generated types
 .astro/
